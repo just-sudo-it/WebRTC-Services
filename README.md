@@ -14,6 +14,6 @@ This project is a WebRTC web and server application enabling real-time communica
 ## Installation
 
 ```bash
-git clone https://github.com/just-sudo-it/WebRTC-Services.git
+git clone https://github.com/just-sudo-it/iTalk-WebRTC.git
 cd hypothetical-webrtc-app
 npm install
