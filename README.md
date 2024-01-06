@@ -1,4 +1,5 @@
-# iTalk-WebRTC
+# iMeet
+WebRTC
 
 This project is a WebRTC web and server application enabling real-time communication through video and audio streams. Built with Node.js and modern JavaScript, it provides a robust platform for building scalable video conferencing and streaming applications.
 
