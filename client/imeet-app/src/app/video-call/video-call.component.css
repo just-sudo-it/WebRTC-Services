@@ -29,7 +29,7 @@
 
 .main {
   overflow: hidden;
-  height: 91vh;
+  height: 62vh;
   display: flex;
 }
 
@@ -49,14 +49,29 @@
 }
 
 video {
-  height: 310px;
+  height: 100%; /* Adjust the height */
+  width: 100%; /* Adjust the width */
   border-radius: 0.9rem;
   margin: 0.5rem;
-  width: 410px;
   object-fit: cover;
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
+}
+.videos {
+  position: relative;
+  height: 100%;
+}
+.remotevideo {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  height: 150px; /* Adjust the size */
+  width: 200px; /* Adjust the size */
+  border-radius: 0.9rem;
+  transform: rotateY(180deg); /* If needed */
+  -webkit-transform: rotateY(180deg); /* If needed */
+  -moz-transform: rotateY(180deg); /* If needed */
 }
 
 .options {
@@ -84,6 +99,25 @@ video {
   font-size: 1.2rem;
   width: 52px;
   margin: 0 0.5rem;
+}
+.options__button.call {
+  border-radius: 50%; /* Makes the button circular */
+  padding: 6px;
+  color: white; /* Sets the icon color to white */
+}
+
+.options__button.call.onCall {
+  background-color: red; /* Red background when on call */
+}
+
+.options__button.call.notOnCall {
+  background-color: green; /* Green background when not on call */
+}
+.options__button.message {
+  border-radius: 50%; /* Makes the button circular */
+  background-color:   rgb(45, 151, 209); /* Sets the icon color to white */
+   padding: 6px;
+  color: white; /* White icon color */
 }
 
 .background__red {

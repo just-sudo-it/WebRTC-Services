@@ -16,16 +16,20 @@ dotenv.config()
 
 const app: Application = express()
 const server = createServer(app)
-const io = new SocketIOServer(server)
+//const io = new SocketIOServer(server)
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST"]
+  }
+});
 // io.attachApp(server)
-const PORT = process.env.PORT ?? 3000
+const PORT = process.env.PORT ?? 5000
 
 useMiddleware(app)
 useRoutes(app)
 
-app.set('view engine', 'ejs')
-
-io.on('connection', (socket) => {
+io.on('connection', (socket:any) => {
   logger.info(`New user connected: ${socket.id}`)
 
   webRTCController(socket, io)
@@ -36,7 +40,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => logger.info(`User disconnected: ${socket.id}`))
 })
 
-io.engine.on('connection_error', (err) => {
+io.engine.on('connection_error', (err: { req: any; code: any; message: any; context: any }) => {
   console.log(err.req)
   console.log(err.code)
   console.log(err.message)

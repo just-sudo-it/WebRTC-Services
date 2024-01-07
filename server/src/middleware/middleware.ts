@@ -11,7 +11,7 @@ export default function useMiddleware (app: Application): void {
   }
 
   app.use(helmet())
-  app.use(cors(corsOptions))
+  app.use(cors())
   app.use(httpLogger)
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))

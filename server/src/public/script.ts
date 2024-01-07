@@ -1,4 +1,4 @@
-let myVideoStream
+/*let myVideoStream
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
 myVideo.muted = true
@@ -16,10 +16,13 @@ myVideo.muted = true
   }
 })()
 
-const addVideoStream = (video, stream) => {
+const addVideoStream = (video: HTMLVideoElement, stream: MediaStream) => {
   video.srcObject = stream
   video.addEventListener('loadedmetadata', () => {
     video.play()
-    videoGrid.append(video)
+    videoGrid?.append(video)
   })
 }
+
+
+*/
