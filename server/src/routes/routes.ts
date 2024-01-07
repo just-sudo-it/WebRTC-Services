@@ -1,8 +1,8 @@
-import express from 'express'
-const router = express.Router()
+import { type Application, type Request, type Response } from 'express'
+import { v4 as uuidv4 } from 'uuid'
 
-router.get('/', (req, res) => {
-  res.send('WebRTC Teleconferencing Server is running')
-})
+export default function useRoutes (app: Application): void {
+  app.get('/', (req: Request, res: Response) => { res.redirect(`${uuidv4()}`) })
 
-export default router
+  app.get('/:room', (req, res) => { res.render('room', { roomId: req.params.room }) })
+}

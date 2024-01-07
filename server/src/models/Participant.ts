@@ -1,10 +1,10 @@
 class Participant {
-  id: string
-  name: string
+  userId: string
+  roomId: string
 
-  constructor (id: string, name: string) {
-    this.id = id
-    this.name = name
+  constructor (userId: string, roomId: string) {
+    this.userId = userId
+    this.roomId = roomId
   }
 }
 
