@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import { createServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
 
+import { v4 as uuidv4 } from 'uuid'
 import chatController from './controllers/ChatController'
 import fileController from './controllers/FileController'
 import participantsController from './controllers/ParticipantsController'
@@ -24,8 +25,13 @@ app.use(cors())
 app.use(httpLogger) // Integrating Morgan for HTTP logging
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(express.static('public'))
 
-app.get('/', (req: Request, res: Response) => res.send('WebRTC Server is running'))
+app.set('view engine', 'ejs')
+
+app.get('/', (req: Request, res: Response) => { res.redirect(`${uuidv4()}`) })
+
+app.get('/:room', (req, res) => { res.render('room', { roomId: req.params.room }) })
 
 io.on('connection', (socket) => {
   logger.info(`New user connected: ${socket.id}`)
@@ -38,7 +44,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => logger.info(`User disconnected: ${socket.id}`))
 })
 
-// Centralized error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error(`Error: ${err.message}`)
   res.status(500).send('Internal Server Error')
