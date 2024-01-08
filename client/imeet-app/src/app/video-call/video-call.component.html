@@ -33,11 +33,11 @@
       </div>
       <div class="options">
         <div class="options__left">
-          <div #webcambutton class="options__button">
-            <i class="fa fa-video-camera" aria-hidden="true"></i>
+          <div #webcambutton class="options__button" (click)="toggleVideo()">
+            <i class="fa" [ngClass]="videoEnabled ? 'fa-video-camera' : 'fa-video-slash'" aria-hidden="true"></i>
           </div>
-          <div #micbutton class="options__button">
-            <i class="fa fa-microphone" aria-hidden="true"></i>
+          <div #micbutton class="options__button" (click)="toggleAudio()">
+            <i class="fa" [ngClass]="audioEnabled ? 'fa-microphone' : 'fa-microphone-slash'" aria-hidden="true"></i>
           </div>
         </div>
         <div class="options__right">
@@ -61,7 +61,8 @@
 
       </div>
       <div class="main__message_container">
-        <input id="chat_message" type="text" placeholder="Type message here..." [(ngModel)]="newMessage">
+        <input id="chat_message" type="text" placeholder="Type message here..." (keydown.enter)="sendMessage()"
+          [(ngModel)]="newMessage">
         <div class="options__button message" (click)="sendMessage()">
           <i class="fa fa-paper-plane" aria-hidden="true"></i>
         </div>

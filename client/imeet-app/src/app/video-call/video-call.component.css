@@ -29,7 +29,7 @@
 
 .main {
   overflow: hidden;
-  height: 64vh;
+  height: 62vh;
   display: flex;
 }
 
@@ -162,6 +162,16 @@ video {
   margin: 1.5rem;
 }
 
+.messages li {
+  text-align: left;
+  width: 65%;
+}
+
+.my-message {
+  text-align: right;
+  margin-left: auto; /* Push it to the right */
+}
+
 .message {
     display: flex;
     flex-direction: column;
@@ -186,15 +196,6 @@ video {
     border-radius: 5px;
   }
 
-  .messages li {
-    text-align: left;
-    width: 65%;
-  }
-
-  .my-message {
-    text-align: right;
-    margin-left: auto; /* Push it to the right */
-  }
 
   #video-grid {
     display: flex;
