@@ -29,21 +29,25 @@ const PORT = process.env.PORT ?? 5000
 useMiddleware(app)
 useRoutes(app)
 
-io.on('connection', (socket:any) => {
-  logger.info(`New user connected: ${socket.id}`)
 
+io.on('connection', (socket:any) => {
+  //socket.join('defaultRoom');
+
+
+  logger.info(`New user connected: ${socket.id}`)
+  socket.conn.once("upgrade", () => {
+    // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
+    console.log("Upgraded to transport:", socket.conn.transport.name);  
+  });
+  
   webRTCController(socket, io)
   chatController(socket, io)
   fileController(socket, io)
   participantsController(socket, io)
 })
 
-io.engine.on('connection_error', (err: { req: any; code: any; message: any; context: any }) => {
-  logger.info(err.req)
-  logger.info(err.code)
-  logger.info(err.message)
-  logger.info(err.context)
-})
+io.engine.on('connection_error', (err: { req: any; code: any; message: any; context: any }) => 
+  logger.info(err.req+ ' ' +err.code+ ' ' +err.message+ ' ' +err.context))
 
 app.use(errorHandler)
 

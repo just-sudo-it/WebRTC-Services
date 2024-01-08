@@ -17,7 +17,8 @@
       <h3>Video Chat</h3>
     </div>
   </div>
-  <div class="main">
+
+  <div *ngIf="hasJoinedRoom" class="main">
     <div class="main__left">
       <div class="videos">
         <div id="video-grid">
@@ -34,10 +35,12 @@
       <div class="options">
         <div class="options__left">
           <div #webcambutton class="options__button" (click)="toggleVideo()">
-            <i class="fa" [ngClass]="videoEnabled ? 'fa-video-camera' : 'fa-video-slash'" aria-hidden="true"></i>
+            <i class="fa" [ngClass]="videoEnabled ? 'fa-video-camera' : 'fa-video-slash'"
+              [style.color]="videoEnabled ? 'black' : 'red'" aria-hidden="true"></i>
           </div>
           <div #micbutton class="options__button" (click)="toggleAudio()">
-            <i class="fa" [ngClass]="audioEnabled ? 'fa-microphone' : 'fa-microphone-slash'" aria-hidden="true"></i>
+            <i class="fa" [ngClass]="audioEnabled ? 'fa-microphone' : 'fa-microphone-slash'"
+              [style.color]="audioEnabled ? 'black' : 'red'" aria-hidden="true"></i>
           </div>
         </div>
         <div class="options__right">
@@ -66,9 +69,24 @@
         <div class="options__button message" (click)="sendMessage()">
           <i class="fa fa-paper-plane" aria-hidden="true"></i>
         </div>
+
+        <input type="file" id="fileInput" style="display: none;" (change)="shareFile($event)" />
+        <label for="fileInput" class="options__button file-share">
+          <i class="fa fa-file" aria-hidden="true"></i>
+        </label>
       </div>
     </div>
   </div>
+
+  <div *ngIf="!hasJoinedRoom" class="join-room-container">
+    <h2>Join or Create a Room</h2>
+    <input type="text" [(ngModel)]="roomId" placeholder="Enter room ID">
+    <div class="button-container">
+      <button [disabled]="!roomId.trim()" (click)="joinRoom()">Join Room</button>
+      <button (click)="createAndJoinRoom()">Create Room</button>
+    </div>
+  </div>
+
 </body>
 
 </html>

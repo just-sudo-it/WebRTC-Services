@@ -6,9 +6,12 @@ import logger from '../utils/Logger'
 const participantsController = (socket: Socket, io: Server): void => {
   socket.on('join', (name: string, roomId: string) => {
     logger.info('joining', name, roomId)
-    // Assuming that roomId is passed along with the name when the client emits 'join'
+
+    // Asuming that roomId is passed along with the name when the client emits 'join'
     const participant = new Participant(socket.id, roomId)
     meetingRoomService.addParticipantToRoom(socket.id, participant.roomId, participant.userId)
+
+    socket.join(participant.roomId)
 
     io.to(participant.roomId).emit('participants-list', Array.from(meetingRoomService.getParticipantsInRoom(participant.roomId)))
   })

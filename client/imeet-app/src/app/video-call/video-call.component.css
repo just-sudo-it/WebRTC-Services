@@ -27,6 +27,32 @@
   color: var(--main-light);
 }
 
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #3071ee;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2058c0;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
 .main {
   overflow: hidden;
   height: 62vh;
@@ -38,6 +64,45 @@
   display: flex;
   flex-direction: column;
 }
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.join-room-container {
+  text-align: center;
+  padding: 20px;
+  margin-top: 50px;
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.join-room-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.join-room-container input {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 250px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 
 .videos__group {
   flex-grow: 1;
@@ -93,11 +158,11 @@ video {
   justify-content: center;
   align-items: center;
   background-color: var(--primary-color);
-  height: 52px;
-  border-radius: 6px;
+  height: 46px;
+  border-radius: 5px;
   color: var(--main-light);
   font-size: 1.2rem;
-  width: 52px;
+  width: 46px;
   margin: 0 0.5rem;
 }
 .options__button.call {
@@ -118,6 +183,12 @@ video {
   background-color:   rgb(45, 151, 209); /* Sets the icon color to white */
    padding: 6px;
   color: white; /* White icon color */
+}
+.options__button.file-share {
+  border-radius: 50%; /* Makes the button circular */
+  background-color:   rgb(234, 219, 194); /* Sets the icon color to white */
+   padding: 6px;
+  color: rgb(70, 70, 70); /* White icon color */
 }
 
 .background__red {

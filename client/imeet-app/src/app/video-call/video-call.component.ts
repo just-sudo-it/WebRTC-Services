@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID
 import { ChatMessage } from '../../../../../server/src/models/ChatMessage'; // Import the ChatMessage type
+import { WebRtcData } from '../../../../../server/src/models/WebRtcData'; // Import the ChatMessage type
 import { SocketService } from '../services/socket.service'; // Import the Socket service
 
 @Component({
@@ -19,10 +20,11 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   private connection!: RTCPeerConnection;
 
   isOnCall = false;
+  hasJoinedRoom: boolean = false;
   roomId = 'defaultRoom'; // Asuming a default room or dynamically set
   messages: ChatMessage[] = []; // Update the type here
   videoEnabled: boolean = true;
-  audioEnabled: boolean = true;
+  audioEnabled: boolean = false; //
     participants: string[] = [];
   newMessage: string = ''; // Add this line
 
@@ -36,12 +38,25 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupConnection();
     this.setupSocketListeners();
-    this.joinRoom();
+    //this.joinRoom();
   }
 
   ngOnDestroy(): void {
     this.localStream?.getTracks().forEach(track => track.stop());
     this.connection.close();
+  }
+
+  joinRoom() {
+    if(this.roomId.trim()) {
+      this.setupVideoCall();
+
+      this.socketService.joinRoom(this.roomId, this.username);
+      this.hasJoinedRoom = true;
+    }
+  }
+  createAndJoinRoom() {
+    this.roomId = uuidv4().slice(0, 8); // Create a random room ID
+    this.joinRoom();
   }
 
   private setupConnection() {
@@ -57,8 +72,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         this.remoteStream.addTrack(track);
       });
     };
+    this.connection.onicecandidate = event => {
+      event.candidate && this.handleIceCandidate(event.candidate.toJSON());
+    };
 
-    this.setupVideoCall();
   }
 
   private async setupVideoCall() {
@@ -86,12 +103,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       this.handleIceCandidate(data);
     });
 
-    this.socketService.on('chat-message', (data: { sender: string, message: string }) => {
-      console.log('!!Received message: ', data.message);
-      console.log('!!sender: ', data.sender);
-      console.log('!!username: ', this.username);
+    this.socketService.on('chat-message', (data: { username: string, message: string,roomId: string }) => {
+      console.log('data: ', data);
 
-      const displaySender = data.sender == this.username ? 'Me' : data.sender;
+      const displaySender = data.username == this.username ? 'Me' : data.username;
       this.messages.push({
         sender: displaySender,
         content: data.message
@@ -99,12 +114,19 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async handleOffer(data: any) {
+  private async handleOffer(data: WebRtcData) {
     if (!this.isOnCall) {
       await this.connection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answerDescription = await this.connection.createAnswer();
       await this.connection.setLocalDescription(answerDescription);
-      this.socketService.emitAnswer(answerDescription,data.sender);
+      this.socketService.emitAnswer(answerDescription, data.sender);
+
+
+      //fires when remote answers
+      if(!this.connection.currentRemoteDescription && data?.answer) {
+        const answerdesc  = new RTCSessionDescription(answerDescription )
+        this.connection.setRemoteDescription(answerdesc);
+    }
     }
   }
 
@@ -145,18 +167,18 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.audioEnabled = !this.audioEnabled;
   }
 
-  joinRoom() {
-    this.socketService.joinRoom(this.roomId,this.username);
+  shareFile(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+        // Call a method in the SocketService to share the file
+        this.socketService.shareFile(file, this.roomId);
+    }
   }
 
   sendMessage() {
     console.log('Sending message: ', this.newMessage);
     if (this.newMessage.trim()) {
-      this.socketService.emitMessage(this.newMessage, this.roomId, this.username)
-      this.messages.push({
-        sender: 'Me',
-        content: this.newMessage
-      });
+      this.socketService.emitMessage(this.username,this.newMessage, this.roomId)
       this.newMessage = '';
     }
   }

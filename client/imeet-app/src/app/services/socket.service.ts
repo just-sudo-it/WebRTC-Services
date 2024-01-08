@@ -24,8 +24,8 @@ export class SocketService {
     this.emit('join-room', { roomId, username });
   }
 
-  emitMessage(message: string, roomId: string, username: string): void {
-    this.emit('chat-message', { message, roomId, sender: username });
+  emitMessage(username: string,message: string, roomId: string): void {
+    this.emit('chat-message', { username, message, roomId });
   }
 
   emitOffer(offer: RTCSessionDescriptionInit, target: string): void {
@@ -43,6 +43,21 @@ export class SocketService {
   emitFileShare(fileData: FileData, roomId: string): void {
     this.emit('file-share', { fileData, roomId });
   }
+
+  shareFile(file: File, roomId: string): void {
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+        const fileData = {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            content: event.target.result
+        };
+
+        this.emitFileShare(fileData, roomId);
+    };
+    reader.readAsDataURL(file);
+}
 
 
   onFileReceived(callback: (fileData: any) => void): void {

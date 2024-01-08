@@ -7,13 +7,13 @@ const webRTCController = (socket: Socket, io: Server): void => {
   socket.on('offer', (data: WebRtcData) => {
     logger.info('offer received')
     // Emit the offer to the targeted user
-    socket.to(data.target).emit('offer', { sender: socket.id, sdp: data.sdp });
+    socket.to(data.target).emit('offer', { sender: socket.id, sdp: data.sdp ,type: data.type });
   });
   
   socket.on('answer', (data: WebRtcData) => {
     logger.info('answer received')
     // Emit the answer back to the original caller
-    socket.to(data.target).emit('answer', { sender: socket.id, sdp: data.sdp });
+    socket.to(data.target).emit('answer', { sender: socket.id, sdp: data.sdp ,type: data.type });
   });
 
   socket.on('ice-candidate', (data: IceCandidateData) => {
