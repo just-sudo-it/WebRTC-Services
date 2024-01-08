@@ -1,5 +1,5 @@
-import winston from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 const fileTransport = new DailyRotateFile({
   filename: 'logs/application-%DATE%.log',
@@ -11,8 +11,11 @@ const fileTransport = new DailyRotateFile({
 const consoleTransport = new winston.transports.Console({
   format: winston.format.combine(
     winston.format.colorize(),
-    winston.format.simple()
-  )
+    winston.format.label({ label: 'signal-server' }),
+    winston.format.timestamp(),
+    winston.format.printf(({ level, message, label, timestamp }) => {
+      return `${timestamp} [${label}] ${level}: ${message}`;
+    }),  )
 })
 
 const logger = winston.createLogger({

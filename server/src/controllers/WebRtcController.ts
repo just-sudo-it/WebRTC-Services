@@ -1,14 +1,17 @@
 import { type Server, type Socket } from 'socket.io';
 import { type IceCandidateData } from '../models/IceCandidateData';
 import { type WebRtcData } from '../models/WebRtcData';
+import logger from '../utils/Logger';
 
 const webRTCController = (socket: Socket, io: Server): void => {
   socket.on('offer', (data: WebRtcData) => {
+    logger.info('offer received')
     // Emit the offer to the targeted user
     socket.to(data.target).emit('offer', { sender: socket.id, sdp: data.sdp });
   });
   
   socket.on('answer', (data: WebRtcData) => {
+    logger.info('answer received')
     // Emit the answer back to the original caller
     socket.to(data.target).emit('answer', { sender: socket.id, sdp: data.sdp });
   });
@@ -19,6 +22,7 @@ const webRTCController = (socket: Socket, io: Server): void => {
   });
 
   socket.on('disconnect', () => {
+    logger.info('user disconnected');
     // Notify other users that this user has disconnected
     socket.broadcast.emit('user-disconnected', socket.id);
   });

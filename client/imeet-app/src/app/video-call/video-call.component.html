@@ -51,13 +51,18 @@
     <div class="main__right">
       <div class="main__chat_window">
         <ul class="messages">
-          <li *ngfor="let message of messages">{{ message }}</li>
+          <li *ngFor="let message of messages" [class.my-message]="message.sender === 'Me'">
+            <div class="message">
+              <b><i class="fas fa-user"></i>{{ message.sender }}</b>
+              <span>{{ message.content }}</span>
+            </div>
+          </li>
         </ul>
+
       </div>
       <div class="main__message_container">
-
-        <input id="chat_message" (input)="sendMessage($event)" type="text" placeholder="Type message here...">
-        <div class="options__button message" (click)="sendMessage($event)">
+        <input id="chat_message" type="text" placeholder="Type message here..." [(ngModel)]="newMessage">
+        <div class="options__button message" (click)="sendMessage()">
           <i class="fa fa-paper-plane" aria-hidden="true"></i>
         </div>
       </div>

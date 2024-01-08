@@ -29,7 +29,7 @@
 
 .main {
   overflow: hidden;
-  height: 62vh;
+  height: 64vh;
   display: flex;
 }
 
@@ -184,6 +184,16 @@ video {
     margin: 1rem 0;
     padding: 1rem;
     border-radius: 5px;
+  }
+
+  .messages li {
+    text-align: left;
+    width: 65%;
+  }
+
+  .my-message {
+    text-align: right;
+    margin-left: auto; /* Push it to the right */
   }
 
   #video-grid {

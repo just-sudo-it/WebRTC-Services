@@ -1,9 +1,11 @@
 import { type Server, type Socket } from 'socket.io'
 import Participant from '../models/Participant'
 import { meetingRoomService } from '../services/MeetingRoomService'
+import logger from '../utils/Logger'
 
 const participantsController = (socket: Socket, io: Server): void => {
   socket.on('join', (name: string, roomId: string) => {
+    logger.info('joining', name, roomId)
     // Assuming that roomId is passed along with the name when the client emits 'join'
     const participant = new Participant(socket.id, roomId)
     meetingRoomService.addParticipantToRoom(socket.id, participant.roomId, participant.userId)

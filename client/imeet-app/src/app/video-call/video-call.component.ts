@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid'; // Import UUID
+import { ChatMessage } from '../../../../../server/src/models/ChatMessage'; // Import the ChatMessage type
 import { SocketService } from '../services/socket.service'; // Import the Socket service
 
 @Component({
@@ -10,17 +12,21 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @ViewChild('localvideo') localVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('remotevideo') remoteVideo!: ElementRef<HTMLVideoElement>;
 
+  public username: string;
+
   private localStream : MediaStream;
   private remoteStream : MediaStream;
   private connection!: RTCPeerConnection;
 
   isOnCall = false;
   roomId = 'defaultRoom'; // Asuming a default room or dynamically set
-  messages: string[] = [];
+  messages: ChatMessage[] = []; // Update the type here
   participants: string[] = [];
   newMessage: string = ''; // Add this line
 
   constructor(private socketService: SocketService) {
+    this.username = `user${uuidv4().slice(0, 6)}`; // Generate a unique username
+
     this.localStream = new MediaStream();
     this.remoteStream = new MediaStream();
   }
@@ -78,6 +84,15 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.socketService.on('ice-candidate', (data: any) => {
       this.handleIceCandidate(data);
     });
+
+      this.socketService.on('chat-message', (data: { sender: string, message: string }) => {
+        console.log('Received message: ', data.message);
+        const displaySender = data.sender === this.username ? 'Me' : data.sender;
+        this.messages.push({
+          sender: displaySender,
+          content: data.message
+        });
+  });
   }
 
   private async handleOffer(data: any) {
@@ -105,8 +120,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   async toggleCall() {
+    console.log("toggled call button");
     if (!this.isOnCall) {
       const offerDescription = await this.connection.createOffer();
+
+      console.log("offer description: " + offerDescription);
+
       await this.connection.setLocalDescription(offerDescription);
       this.socketService.emit('call-user', { offer: offerDescription });
     } else {
@@ -119,11 +138,20 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.socketService.emit('join-room', this.roomId);
   }
 
-  sendMessage(event: Event) {
+  sendMessage() {
+    console.log('Sending message: ', this.newMessage);
+    if (this.newMessage.trim()) {
+      this.socketService.emit('chat-message', { message: this.newMessage, roomId: this.roomId });
+      this.messages.push({
+        sender: this.username,
+        content: this.newMessage
+      });
+      this.newMessage = '';
+    }
+  }
+
+  updateMessage(event: Event) {
     const inputElement = event.target as HTMLInputElement;
-    const message = inputElement.value;
-    console.log(message);
-    this.socketService.emit('chat-message', { message, roomId: this.roomId });
-    this.messages.push(message); // Optionally add to local state
+    this.newMessage = inputElement.value;
   }
 }

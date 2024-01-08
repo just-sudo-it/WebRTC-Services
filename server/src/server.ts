@@ -36,15 +36,13 @@ io.on('connection', (socket:any) => {
   chatController(socket, io)
   fileController(socket, io)
   participantsController(socket, io)
-
-  socket.on('disconnect', () => logger.info(`User disconnected: ${socket.id}`))
 })
 
 io.engine.on('connection_error', (err: { req: any; code: any; message: any; context: any }) => {
-  console.log(err.req)
-  console.log(err.code)
-  console.log(err.message)
-  console.log(err.context)
+  logger.info(err.req)
+  logger.info(err.code)
+  logger.info(err.message)
+  logger.info(err.context)
 })
 
 app.use(errorHandler)
