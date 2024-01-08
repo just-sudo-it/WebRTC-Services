@@ -21,7 +21,7 @@ export class SocketService {
   }
 
   joinRoom(roomId: string, username: string): void {
-    this.emit('join-room', { roomId, username });
+    this.emit('join', { roomId, username });
   }
 
   emitMessage(username: string,message: string, roomId: string): void {

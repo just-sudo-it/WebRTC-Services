@@ -24,8 +24,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   roomId = 'defaultRoom'; // Asuming a default room or dynamically set
   messages: ChatMessage[] = []; // Update the type here
   videoEnabled: boolean = true;
-  audioEnabled: boolean = false; //
-    participants: string[] = [];
+  audioEnabled: boolean = true; //
+  participants: string[] = [];
   newMessage: string = ''; // Add this line
 
   constructor(private socketService: SocketService) {
@@ -103,7 +103,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       this.handleIceCandidate(data);
     });
 
-    this.socketService.on('chat-message', (data: { username: string, message: string,roomId: string }) => {
+    this.socketService.on('chat-message', (data: { username: string, message: string, roomId: string }) => {
       console.log('data: ', data);
 
       const displaySender = data.username == this.username ? 'Me' : data.username;
