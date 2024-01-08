@@ -23,7 +23,7 @@ const io = require('socket.io')(server, {
     methods: ["GET", "POST"]
   }
 });
-// io.attachApp(server)
+
 const PORT = process.env.PORT ?? 5000
 
 useMiddleware(app)
@@ -31,12 +31,10 @@ useRoutes(app)
 
 
 io.on('connection', (socket:any) => {
-  //socket.join('defaultRoom');
-
 
   logger.info(`New user connected: ${socket.id}`)
   socket.conn.once("upgrade", () => {
-    // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
+    // called when upgraded (i.e. from HTTP long-polling to ws)
     console.log("Upgraded to transport:", socket.conn.transport.name);  
   });
   

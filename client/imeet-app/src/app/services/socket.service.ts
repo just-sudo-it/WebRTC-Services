@@ -36,7 +36,7 @@ export class SocketService {
     this.emit('answer', { answer, target });
   }
 
-  emitIceCandidate(candidate: RTCIceCandidate, target: string): void {
+  emitIceCandidate(candidate: RTCIceCandidate, target: any): void {
     this.emit('ice-candidate', { candidate, target });
   }
 

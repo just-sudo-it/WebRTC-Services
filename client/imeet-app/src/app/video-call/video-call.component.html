@@ -78,6 +78,13 @@
     </div>
   </div>
 
+  <div *ngIf="hasJoinedRoom" class="participants-list">
+    <h3>Participants</h3>
+    <ul>
+      <li *ngFor="let participant of participants">{{ participant }}</li>
+    </ul>
+  </div>
+
   <div *ngIf="!hasJoinedRoom" class="join-room-container">
     <h2>Join or Create a Room</h2>
     <input type="text" [(ngModel)]="roomId" placeholder="Enter room ID">

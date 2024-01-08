@@ -20,12 +20,7 @@ const webRTCController = (socket: Socket, io: Server): void => {
     // Emit the ICE candidate to the other peer
     socket.to(data.target).emit('ice-candidate', { sender: socket.id, candidate: data.candidate });
   });
-
-  socket.on('disconnect', () => {
-    logger.info('user disconnected');
-    // Notify other users that this user has disconnected
-    socket.broadcast.emit('user-disconnected', socket.id);
-  });
+  
 }
 
 export default webRTCController
