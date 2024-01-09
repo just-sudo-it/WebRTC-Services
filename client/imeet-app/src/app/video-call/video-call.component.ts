@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID
 import { ChatMessage } from '../../../../../server/src/models/ChatMessage'; // Import the ChatMessage type
+import { FileData } from '../../../../../server/src/models/FileData';
 import { WebRtcData } from '../../../../../server/src/models/WebRtcData'; // Import the ChatMessage type
 import { SocketService } from '../services/socket.service'; // Import the Socket service
 
@@ -17,7 +18,11 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   private localStream : MediaStream;
   private remoteStream : MediaStream;
-  private connection!: RTCPeerConnection;
+  private connection! : RTCPeerConnection;
+  private dataChannel!: RTCDataChannel;
+  private receivedBuffers: ArrayBuffer[] = [];
+  private readonly MAX_CHUNK_SIZE = 16384; // 16 KB
+  private readonly END_OF_FILE_MESSAGE = 'EOF';
 
   isOnCall = false;
   hasJoinedRoom: boolean = false;
@@ -27,6 +32,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   audioEnabled: boolean = true; //
   participants: string[] = [];
   newMessage: string = ''; // Add this line
+  sharedFiles: FileData[] = [];
 
   constructor(private socketService: SocketService) {
     this.username = `user${uuidv4().slice(0, 6)}`; // Generate a unique username
@@ -67,14 +73,22 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.connection = new RTCPeerConnection(serverConfig);
 
     this.connection.ontrack = event => {
+      if (this.remoteVideo.nativeElement.srcObject !== event.streams[0]) {
+        this.remoteVideo.nativeElement.srcObject = event.streams[0];
+      }
+
       event.streams[0].getTracks().forEach(track => {
         this.remoteStream.addTrack(track);
       });
     };
-    this.connection.onicecandidate = event => {
-      event.candidate && this.handleIceCandidate(event.candidate.toJSON());
-    };
 
+    this.connection.onicecandidate = event => {
+      event.candidate && this.handleIceCandidate(event.candidate);
+    };
+    //for file sharing:
+    this.dataChannel = this.connection.createDataChannel("filetransfer");
+    this.dataChannel.onopen = () => console.log("Data Channel Opened");
+    this.dataChannel.onmessage = (event) => this.handleIncomingData(event.data);
   }
 
   private async setupVideoCall() {
@@ -131,7 +145,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       if(!this.connection.currentRemoteDescription && data?.answer) {
         const answerdesc  = new RTCSessionDescription(answerDescription )
         this.connection.setRemoteDescription(answerdesc);
-    }
+      }
     }
   }
 
@@ -143,7 +157,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   private async handleIceCandidate(data: any) {
     if (data.candidate) {
-      await this.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
+      await this.connection.addIceCandidate(new RTCIceCandidate(data));
     }
   }
 
@@ -157,7 +171,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       await this.connection.setLocalDescription(offerDescription);
       this.socketService.emit('call-user', { offer: offerDescription });
     } else {
-      // End the call logic here
+      // End the call
+      this.connection.close();
+      this.connection = new RTCPeerConnection();
+      this.socketService.emit('disconnect', { roomId: this.roomId });
+      this.setupConnection();
+      this.setupSocketListeners();
     }
     this.isOnCall = !this.isOnCall;
   }
@@ -175,9 +194,45 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   shareFile(event: any) {
     const file = event.target.files[0];
     if (file) {
-        // Call a method in the SocketService to share the file
-        this.socketService.shareFile(file, this.roomId);
+      const fileReader = new FileReader();
+      let offset = 0;
+
+      fileReader.onload = (event: any) => {
+        this.dataChannel.send(event.target.result);
+        offset += event.target.result.byteLength;
+        if (offset < file.size) {
+          readChunk(offset);
+        } else {
+          this.dataChannel.send(this.END_OF_FILE_MESSAGE);
+        }
+      };
+
+      const readChunk = (offset: number) => {
+        const slice = file.slice(offset, offset + this.MAX_CHUNK_SIZE);
+        fileReader.readAsArrayBuffer(slice);
+      };
+
+      readChunk(0);
     }
+}
+
+private handleIncomingData(data: any) {
+  if (data !== this.END_OF_FILE_MESSAGE) {
+    this.receivedBuffers.push(data);
+  } else {
+    const blob = new Blob(this.receivedBuffers);
+    this.sharedFiles.push({ name: 'receivedFile', content: blob }); // Add metadata as needed
+    this.receivedBuffers = [];
+  }
+}
+
+ downloadFile(blob: Blob, fileName: string) {
+    const a = document.createElement('a');
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   sendMessage() {

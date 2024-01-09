@@ -44,22 +44,6 @@ export class SocketService {
     this.emit('file-share', { fileData, roomId });
   }
 
-  shareFile(file: File, roomId: string): void {
-    const reader = new FileReader();
-    reader.onload = (event: any) => {
-        const fileData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            content: event.target.result
-        };
-
-        this.emitFileShare(fileData, roomId);
-    };
-    reader.readAsDataURL(file);
-}
-
-
   onFileReceived(callback: (fileData: any) => void): void {
     this.on('file-received', callback);
   }

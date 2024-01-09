@@ -83,6 +83,16 @@
         </ul>
       </div>
 
+      <div class="shared-files">
+        <h3 style="color:white;margin:5px">Shared Files</h3>
+        <ul>
+          <li *ngFor="let file of sharedFiles">
+            <span>{{ file.name }}</span>
+            <button (click)="downloadFile(file.content, file.name)">Download</button>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </div>
 

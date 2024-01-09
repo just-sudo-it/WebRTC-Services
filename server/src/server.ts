@@ -9,6 +9,7 @@ import participantsController from './controllers/ParticipantsController'
 import webRTCController from './controllers/WebRtcController'
 import useMiddleware from './middleware/middleware'
 import useRoutes from './routes/routes'
+import { meetingRoomService } from './services/MeetingRoomService'
 import { errorHandler } from './utils/ErrorHandlers'
 import logger from './utils/Logger'
 
@@ -43,9 +44,6 @@ io.on('connection', (socket:any) => {
   fileController(socket, io)
   participantsController(socket, io)
 })
-
-io.engine.on('connection_error', (err: { req: any; code: any; message: any; context: any }) => 
-  logger.info(err.req+ ' ' +err.code+ ' ' +err.message+ ' ' +err.context))
 
 app.use(errorHandler)
 
