@@ -117,7 +117,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   private async handleOffer(data: WebRtcData) {
+    console.log('offer received');
+    console.log(data);
     if (!this.isOnCall) {
+      console.log('wasnt on call ');
       await this.connection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answerDescription = await this.connection.createAnswer();
       await this.connection.setLocalDescription(answerDescription);

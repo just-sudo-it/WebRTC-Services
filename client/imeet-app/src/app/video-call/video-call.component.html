@@ -77,9 +77,12 @@
       <div *ngIf="hasJoinedRoom" class="participants-list">
         <h3>Participants</h3>
         <ul>
-          <li *ngFor="let participant of participants">{{ participant }}</li>
+          <li *ngFor="let participant of participants">
+            <i class="fas fa-user participant-icon"></i> {{ participant }}
+          </li>
         </ul>
       </div>
+
     </div>
   </div>
 
