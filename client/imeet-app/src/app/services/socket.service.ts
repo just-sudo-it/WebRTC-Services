@@ -67,4 +67,8 @@ export class SocketService {
   onChatMessage(callback: (data: any) => void): void {
     this.on('chat-message', callback);
   }
+
+  onParticipantList(callback: (participants: string[]) => void): void {
+    this.on('participants-list', callback);
+  }
 }

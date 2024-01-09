@@ -61,7 +61,6 @@
             </div>
           </li>
         </ul>
-
       </div>
       <div class="main__message_container">
         <input id="chat_message" type="text" placeholder="Type message here..." (keydown.enter)="sendMessage()"
@@ -75,14 +74,13 @@
           <i class="fa fa-file" aria-hidden="true"></i>
         </label>
       </div>
+      <div *ngIf="hasJoinedRoom" class="participants-list">
+        <h3>Participants</h3>
+        <ul>
+          <li *ngFor="let participant of participants">{{ participant }}</li>
+        </ul>
+      </div>
     </div>
-  </div>
-
-  <div *ngIf="hasJoinedRoom" class="participants-list">
-    <h3>Participants</h3>
-    <ul>
-      <li *ngFor="let participant of participants">{{ participant }}</li>
-    </ul>
   </div>
 
   <div *ngIf="!hasJoinedRoom" class="join-room-container">

@@ -10,7 +10,7 @@ class MeetingRoomService {
     }
 
     const roomParticipants = this.activeRooms.get(roomId) ?? new Set<string>()
-    roomParticipants.add(socketId)
+    roomParticipants.add(userId)
     this.activeRooms.set(roomId, roomParticipants)
 
     this.participantDetails.set(socketId, new Participant(userId, roomId))

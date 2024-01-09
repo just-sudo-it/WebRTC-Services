@@ -6,7 +6,7 @@ import logger from '../utils/Logger'
 const participantsController = (socket: Socket, io: Server): void => {
   socket.on('join', (data: { username:string, roomId: string }) => {
     const { username , roomId } = data;
-    logger.info('joining', roomId,username)
+    logger.info('Joining ', roomId,username)
 
     // Asuming that roomId is passed along with the name when the client emits 'join'
     const participant = new Participant(username, roomId)

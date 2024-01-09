@@ -49,7 +49,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   joinRoom() {
     if(this.roomId.trim()) {
       this.setupVideoCall();
-
       this.socketService.joinRoom(this.roomId, this.username);
       this.hasJoinedRoom = true;
     }
@@ -103,9 +102,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       this.handleIceCandidate(data);
     });
 
-    this.socketService.on('chat-message', (data: { username: string, message: string, roomId: string }) => {
-      console.log('data: ', data);
+    this.socketService.onParticipantList((participants: string[]) => {
+      console.log('participants');
+      this.participants = participants;
+    });
 
+    this.socketService.on('chat-message', (data: { username: string, message: string, roomId: string }) => {
       const displaySender = data.username == this.username ? 'Me' : data.username;
       this.messages.push({
         sender: displaySender,
@@ -176,7 +178,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   sendMessage() {
-    console.log('Sending message: ', this.newMessage);
     if (this.newMessage.trim()) {
       this.socketService.emitMessage(this.username,this.newMessage, this.roomId)
       this.newMessage = '';
