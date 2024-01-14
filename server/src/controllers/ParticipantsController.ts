@@ -4,13 +4,13 @@ import { meetingRoomService } from '../services/MeetingRoomService'
 import logger from '../utils/Logger'
 
 const participantsController = (socket: Socket, io: Server): void => {
-  socket.on('join', (data: { username:string, roomId: string }) => {
+  socket.on('join', (data: { username: string, roomId: string }) => {
     const { username , roomId } = data;
     logger.info('Joining ', roomId,username)
 
     // Asuming that roomId is passed along with the name when the client emits 'join'
-    const participant = new Participant(username, roomId)
-    meetingRoomService.addParticipantToRoom(socket.id, participant.roomId, participant.userId)
+    const participant = new Participant(socket.id,username, roomId)
+    meetingRoomService.addParticipantToRoom(socket.id, roomId, username);
 
     socket.join(participant.roomId)
 
@@ -23,6 +23,14 @@ const participantsController = (socket: Socket, io: Server): void => {
       io.to(participant.roomId).emit('participants-list', Array.from(meetingRoomService.getParticipantsInRoom(participant.roomId)))
     }
   })
+
+  socket.on('manual-disconnect', (data) => {
+    const { username, roomId } = data;
+    const participant = meetingRoomService.removeParticipantFromRoom(socket.id);
+    if (participant) {
+      io.to(roomId).emit('participants-list', Array.from(meetingRoomService.getParticipantsInRoom(roomId)));
+    }
+  });
 }
 
 export default participantsController

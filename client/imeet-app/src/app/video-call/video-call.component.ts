@@ -50,6 +50,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.localStream?.getTracks().forEach(track => track.stop());
     this.connection.close();
+    this.disconnectCall();
   }
 
 
@@ -166,6 +167,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     }
   }
 
+  disconnectCall(): void {
+    // Logic to disconnect from the call
+      this.localStream?.getTracks().forEach(track => track.stop());
+      this.socketService.emit('manual-disconnect', { roomId: this.roomId, username: this.username });
+  }
+
   async toggleCall() {
     console.log("toggled call button");
     if (!this.isOnCall) {
@@ -179,7 +186,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       // End the call
       this.connection.close();
       this.connection = new RTCPeerConnection();
-      this.socketService.emit('disconnect', { roomId: this.roomId });
+      this.socketService.emit('manual-disconnect', { roomId: this.roomId, username: this.username });
       this.setupConnection();
       this.setupSocketListeners();
     }
