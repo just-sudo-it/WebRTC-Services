@@ -1,4 +1,4 @@
 export interface IceCandidateData {
   target: string
-  candidate: string
+  candidate: RTCIceCandidateInit
 }

@@ -28,7 +28,6 @@
     "morgan": "^1.10.0",
     "npm": "^10.2.5",
     "socket.io": "^4.7.3",
-    "uuid": "^9.0.1",
     "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1"
   },
@@ -46,6 +45,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "uuid": "^9.0.1"
   }
 }

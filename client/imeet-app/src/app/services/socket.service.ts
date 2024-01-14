@@ -29,14 +29,14 @@ export class SocketService {
   }
 
   emitOffer(offer: RTCSessionDescriptionInit, target: string): void {
-    this.emit('offer', { offer, target });
+    this.emit('offer', { offer: { sdp: offer.sdp, type: offer.type }, target });
   }
 
   emitAnswer(answer: RTCSessionDescriptionInit, target: string): void {
-    this.emit('answer', { answer, target });
+    this.emit('answer', { answer: { sdp: answer.sdp, type: answer.type }, target });
   }
 
-  emitIceCandidate(candidate: RTCIceCandidate, target: any): void {
+  emitIceCandidate(candidate: RTCIceCandidateInit, target: string): void {
     this.emit('ice-candidate', { candidate, target });
   }
 

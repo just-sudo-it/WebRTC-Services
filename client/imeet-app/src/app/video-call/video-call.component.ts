@@ -52,6 +52,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.connection.close();
   }
 
+
   joinRoom() {
     if(this.roomId.trim()) {
       this.setupVideoCall();
@@ -73,6 +74,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.connection = new RTCPeerConnection(serverConfig);
 
     this.connection.ontrack = event => {
+      console.log("Event : "+event)
       if (this.remoteVideo.nativeElement.srcObject !== event.streams[0]) {
         this.remoteVideo.nativeElement.srcObject = event.streams[0];
       }
@@ -138,13 +140,16 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       await this.connection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answerDescription = await this.connection.createAnswer();
       await this.connection.setLocalDescription(answerDescription);
+      console.log('Initiating answer ');
       this.socketService.emitAnswer(answerDescription, data.sender);
 
-
+      console.log(answerDescription);
       //fires when remote answers
       if(!this.connection.currentRemoteDescription && data?.answer) {
         const answerdesc  = new RTCSessionDescription(answerDescription )
         this.connection.setRemoteDescription(answerdesc);
+        console.log(this.connection.currentRemoteDescription);
+        console.log(data);
       }
     }
   }
@@ -157,7 +162,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   private async handleIceCandidate(data: any) {
     if (data.candidate) {
-      await this.connection.addIceCandidate(new RTCIceCandidate(data));
+      await this.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
     }
   }
 
@@ -169,7 +174,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       console.log("offer description: " + offerDescription);
 
       await this.connection.setLocalDescription(offerDescription);
-      this.socketService.emit('call-user', { offer: offerDescription });
+      this.socketService.emit('offer', { offer: offerDescription , target: this.roomId});
     } else {
       // End the call
       this.connection.close();
@@ -193,6 +198,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   shareFile(event: any) {
     const file = event.target.files[0];
+    console.log(file);
     if (file) {
       const fileReader = new FileReader();
       let offset = 0;
