@@ -50,6 +50,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.localStream?.getTracks().forEach(track => track.stop());
     this.connection.close();
+    this.dataChannel.close();
     this.disconnectCall();
   }
 
@@ -92,10 +93,37 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       && event.candidate.sdpMid
       && await this.handleIceCandidate(event.candidate);
     };
+
     //for file sharing:
-    this.dataChannel = this.connection.createDataChannel("filetransfer");
-    this.dataChannel.onopen = () => console.log("Data Channel Opened");
-    this.dataChannel.onmessage = (event) => this.handleIncomingData(event.data);
+    const dataChannelOptions = {
+      ordered: true, // do not guarantee order
+      maxPacketLifeTime: 3000, // in milliseconds
+    };
+    this.dataChannel = this.connection.createDataChannel("filetransfer",dataChannelOptions);
+    this.dataChannel.binaryType = 'arraybuffer';
+    this.connection.ondatachannel = (event :RTCDataChannelEvent ) => {
+      this.handleDataChannel(event);
+    };
+}
+  handleDataChannel(event: RTCDataChannelEvent) {
+    let receiveChannel = event.channel;
+    receiveChannel.onopen = () => console.log("Data Channel Opened");
+    receiveChannel.onclose = () => {console.log("The Data Channel is Closed");};
+    receiveChannel.onerror = function (error) { console.log("Data Channel Error:", error);};
+    receiveChannel.onmessage = (event) =>{
+      console.log("Data Channel Message received");
+      this.handleIncomingData(event.data);
+    }
+  }
+   handleSendChannelStatusChange(event : RTCDataChannelEvent) {
+    if (this.dataChannel) {
+      if (this.dataChannel.readyState === "open") {
+        console.log("Data channel open and ready to send");
+      }
+       else {
+        console.log("Data channel not ready to send");
+      }
+    }
   }
 
   private async setupVideoCall() {
@@ -146,7 +174,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     console.log('Initiating answer ');
     this.socketService.emitAnswer(answerDescription, data.sender);
 
-    console.log(answerDescription);
+    console.log("Answer desc : "+answerDescription);
     //fires when remote answers
     if(!this.connection.currentRemoteDescription && data?.answer) {
       const answerdesc  = new RTCSessionDescription(answerDescription )
@@ -241,11 +269,14 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 }
 
 private handleIncomingData(data: any) {
+  console.log("Incoming data");
   if (data !== this.END_OF_FILE_MESSAGE) {
     this.receivedBuffers.push(data);
   } else {
     const blob = new Blob(this.receivedBuffers);
+    console.log('received files'+this.sharedFiles);
     this.sharedFiles.push({ name: 'receivedFile', content: blob }); // Add metadata as needed
+    console.log('received files'+this.sharedFiles);
     this.receivedBuffers = [];
   }
 }
