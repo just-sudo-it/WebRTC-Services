@@ -85,8 +85,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       });
     };
 
-    this.connection.onicecandidate = event => {
-      event.candidate && this.handleIceCandidate(event.candidate);
+    this.connection.onicecandidate = async event => {
+      console.log("Event candidate: "+event.candidate)
+      event.candidate
+      && event.candidate.sdpMLineIndex
+      && event.candidate.sdpMid
+      && await this.handleIceCandidate(event.candidate);
     };
     //for file sharing:
     this.dataChannel = this.connection.createDataChannel("filetransfer");
@@ -136,23 +140,21 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   private async handleOffer(data: WebRtcData) {
     console.log('offer received');
     console.log(data);
-    if (!this.isOnCall) {
-      console.log('wasnt on call ');
-      await this.connection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answerDescription = await this.connection.createAnswer();
-      await this.connection.setLocalDescription(answerDescription);
-      console.log('Initiating answer ');
-      this.socketService.emitAnswer(answerDescription, data.sender);
+    await this.connection.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answerDescription = await this.connection.createAnswer();
+    await this.connection.setLocalDescription(answerDescription);
+    console.log('Initiating answer ');
+    this.socketService.emitAnswer(answerDescription, data.sender);
 
-      console.log(answerDescription);
-      //fires when remote answers
-      if(!this.connection.currentRemoteDescription && data?.answer) {
-        const answerdesc  = new RTCSessionDescription(answerDescription )
-        this.connection.setRemoteDescription(answerdesc);
-        console.log(this.connection.currentRemoteDescription);
-        console.log(data);
-      }
+    console.log(answerDescription);
+    //fires when remote answers
+    if(!this.connection.currentRemoteDescription && data?.answer) {
+      const answerdesc  = new RTCSessionDescription(answerDescription )
+      this.connection.setRemoteDescription(answerdesc);
+      console.log(this.connection.currentRemoteDescription);
+      console.log(data);
     }
+
   }
 
   private async handleAnswer(data: any) {
@@ -163,7 +165,15 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   private async handleIceCandidate(data: any) {
     if (data.candidate) {
-      await this.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
+      console.log(data)
+      console.log(data.candidate.sdpMid)
+      console.log(data.candidate.sdpMLineIndex)
+      await this.connection.addIceCandidate(
+        new RTCIceCandidate(
+          {
+            candidate :data.candidate,
+            sdpMid :data.sdpMid ?? data.candidate.id ,
+            sdpMLineIndex :data.sdpMLineIndex ??  data.candidate.label}));
     }
   }
 
@@ -182,7 +192,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
       await this.connection.setLocalDescription(offerDescription);
       this.socketService.emit('offer', { offer: offerDescription , target: this.roomId});
-    } else {
+    } else
+    {
       // End the call
       this.connection.close();
       this.connection = new RTCPeerConnection();

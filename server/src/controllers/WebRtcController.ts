@@ -18,7 +18,7 @@ const webRTCController = (socket: Socket, io: Server): void => {
 
   socket.on('ice-candidate', (data: IceCandidateData) => {
     // Emit the ICE candidate to the other peer
-    socket.to(data.target).emit('ice-candidate', { sender: socket.id, candidate: data.candidate });
+    socket.to(data.target).emit('ice-candidate', { sender: socket.id, candidate: data.candidate.toJSON() });
   });
   
 }
