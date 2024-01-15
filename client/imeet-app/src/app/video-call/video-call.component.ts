@@ -244,8 +244,16 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   shareFile(event: any) {
     const file = event.target.files[0];
-    console.log(file);
+    console.log("Trying to send file : " + file);
     if (file) {
+      const fileMetadata = JSON.stringify({
+        type: 'file-metadata',
+        fileName: file.name,
+        fileSize: file.size
+      });
+      console.log("Sending file metadata");
+      this.dataChannel.send(fileMetadata);
+
       const fileReader = new FileReader();
       let offset = 0;
 
@@ -266,7 +274,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
       readChunk(0);
     }
-}
+  }
+
 
 private handleIncomingData(data: any) {
   console.log("Incoming data");
